@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-server
+  template:
+    metadata:
+      labels:
+        app: auth-server
+    spec:
+      containers:
+        - name: auth-server
+          image: borissolomonia/microservices-auth-server:latest #dockerhub ზე განთავსებული იმიჯია საჭირო
+          ports:
+            - containerPort: 8080
+          env:
+            - name: EUREKA_SERVER_ADDRESS
+              value: "http://reflect-service-registry:8761/eureka"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-server
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: auth-server

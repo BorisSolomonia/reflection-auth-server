@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka}
+
+spring:
+  application:
+    name: AUTH-SERVER
+  security:
+    oauth2:
+      authorization-server:
+        client:
+          api-client:
+            registration:
+              client-id: api-client-id
+              client-secret: "{noop}api123"
+              client-authentication-methods:
+                - client_secret_basic
+              authorization-grant-types:
+                - client_credentials
+            token:
+              access-token-time-to-live: 3600s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
