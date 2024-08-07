@@ -35,15 +35,17 @@ pipeline {
             steps {
                 script {
                     sh "sed -i 's|IMAGE_URL|${REPO_URL}|g' auth-server-deployment.yaml"
-                    step([
-                        $class: 'KubernetesEngineBuilder', 
-                        projectId: env.PROJECT_ID, 
-                        cluster: "${env.CLUSTER_NAME} (${env.ZONE})", // Ensure correct format
-                        location: env.ZONE, 
-                        manifestPattern: 'auth-server-deployment.yaml', 
-                        credentialsId: env.GC_KEY, 
-                        verifyDeployments: true
-                    ])
+                    withCredentials([file(credentialsId: "${env.GC_KEY}", variable: 'GC_KEY_FILE')]) {
+                        step([
+                            $class: 'KubernetesEngineBuilder', 
+                            projectId: env.PROJECT_ID, 
+                            cluster: "${env.CLUSTER_NAME} (${env.ZONE})", // Ensure correct format
+                            location: env.ZONE, 
+                            manifestPattern: 'auth-server-deployment.yaml', 
+                            credentialsId: env.GC_KEY, 
+                            verifyDeployments: true
+                        ])
+                    }
                 }
             }
         }
