@@ -36,6 +36,7 @@ pipeline {
                 script {
                     sh "sed -i 's|IMAGE_URL|${REPO_URL}|g' auth-server-deployment.yaml"
                     withCredentials([file(credentialsId: "${env.GC_KEY}", variable: 'GC_KEY_FILE')]) {
+                        echo "Using credentials ID: ${env.GC_KEY}"
                         step([
                             $class: 'KubernetesEngineBuilder', 
                             projectId: env.PROJECT_ID, 
