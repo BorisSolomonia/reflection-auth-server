@@ -64,6 +64,15 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<from>
+						<image>openjdk:17</image>
+					</from>
+					<to>
+						<image>${REPO_URL}/reflection-auth-server</image>
+						<tags>${project.version}</tags>
+					</to>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

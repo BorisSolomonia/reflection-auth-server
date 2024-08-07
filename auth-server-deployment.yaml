@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: auth-server
-          image: borissolomonia/microservices-auth-server:latest #dockerhub ზე განთავსებული იმიჯია საჭირო
+          image: IMAGE_URL/microservices-auth-server:latest #dockerhub ზე განთავსებული იმიჯია საჭირო
           ports:
             - containerPort: 8080
           env:
