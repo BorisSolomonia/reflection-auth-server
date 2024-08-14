@@ -85,7 +85,7 @@ pipeline {
                         step([
                             $class: 'KubernetesEngineBuilder',
                             projectId: env.PROJECT_ID,
-                            cluster: env.CLUSTER,
+                            cluster: "${env.CLUSTER} (${env.ZONE})",
                             location: env.ZONE,
                             manifestPattern: 'auth-server-deployment.yaml',
                             credentialsId: "${GC_KEY}",
