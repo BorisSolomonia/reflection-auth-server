@@ -77,23 +77,16 @@ pipeline {
                 }
             }
         }
-        stage('Deploy') {
-            steps {
-                script {
-                    sh "sed -i 's|IMAGE_URL|${REPO_URL}|g' auth-server-deployment.yaml"
-                    withCredentials([file(credentialsId: "${GC_KEY}", variable: 'GC_KEY_FILE')]) {
-                        step([
-                            $class: 'KubernetesEngineBuilder',
-                            projectId: env.PROJECT_ID,
-                            cluster: "${env.CLUSTER} (${env.ZONE})", // Ensure this is correct
-                            location: env.ZONE,
-                            manifestPattern: 'auth-server-deployment.yaml',
-                            credentialsId: "${GC_KEY}",
-                            verifyDeployments: true
-                        ])
-                    }
-                }
-            }
+        stage('Deploy'){
+            sh "sed -i 's|IMAGE_URL|${REPO_URL}|g' auth-server-deployment.yaml"
+            step([$class: 'KubernetesEngineBuilder',
+            projectId: env.PROJECT_ID,
+            cluster: env.CLUSTER,
+            location: env.ZONE,
+            manifestPattern: 'auth-server-deployment.yaml',
+            credentialsId: env.PROJECT_ID
+            verifyDeployments: true
+            ])
         }
     }
 }
