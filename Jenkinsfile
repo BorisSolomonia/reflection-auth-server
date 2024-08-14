@@ -53,7 +53,7 @@ pipeline {
         PROJECT_ID = 'reflection01-431417'
         ARTIFACT_REGISTRY = 'reflection-artifacts'
         CLUSTER = 'reflection-cluster-1'
-        ZONE = 'asia-south1-a'  // Ensure this matches the zone where your cluster is located
+        ZONE = 'us-central1'  // Ensure this matches the zone where your cluster is located
         REPO_URL = "${REGISTRY_URI}/${PROJECT_ID}/${ARTIFACT_REGISTRY}"
     }
     stages {
