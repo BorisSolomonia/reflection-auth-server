@@ -54,17 +54,17 @@ pipeline {
         ARTIFACT_REGISTRY = 'reflection-artifacts'
         CLUSTER = 'reflection-cluster-1'
         ZONE = 'asia-south1-a'  // Ensure this matches the zone where your cluster is located
-        REPO_URL = "${env.REGISTRY_URI}/${env.PROJECT_ID}/${env.ARTIFACT_REGISTRY}"
+        REPO_URL = "${REGISTRY_URI}/${PROJECT_ID}/${ARTIFACT_REGISTRY}"
     }
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/BorisSolomonia/reflection-auth-server.git', branch: 'master', credentialsId: "${env.GIT_CREDENTIALS_ID}"
+                git url: 'https://github.com/BorisSolomonia/reflection-auth-server.git', branch: 'master', credentialsId: "${GIT_CREDENTIALS_ID}"
             }
         }
         stage('Build and Push Image') {
             steps {
-                withCredentials([file(credentialsId: "${env.GC_KEY}", variable: 'GC_KEY_FILE')]) {
+                withCredentials([file(credentialsId: "${GC_KEY}", variable: 'GC_KEY_FILE')]) {
                     script {
                         withEnv(["GOOGLE_APPLICATION_CREDENTIALS=${GC_KEY_FILE}"]) {
                             sh "gcloud auth activate-service-account --key-file=${GC_KEY_FILE} --verbosity=debug"
@@ -81,12 +81,19 @@ pipeline {
             steps {
                 script {
                     sh "sed -i 's|IMAGE_URL|${REPO_URL}|g' auth-server-deployment.yaml"
-                    withCredentials([file(credentialsId: "${env.GC_KEY}", variable: 'GC_KEY_FILE')]) {
-                        step([$class: 'KubernetesEngineBuilder', projectId: env.PROJECT_ID, cluster: env.CLUSTER, location: env.ZONE, manifestPattern: 'auth-server-deployment.yaml', credentialsId: "${env.GC_KEY}", verifyDeployments: true])
+                    withCredentials([file(credentialsId: "${GC_KEY}", variable: 'GC_KEY_FILE')]) {
+                        step([
+                            $class: 'KubernetesEngineBuilder',
+                            projectId: env.PROJECT_ID,
+                            cluster: env.CLUSTER,
+                            location: env.ZONE,
+                            manifestPattern: 'auth-server-deployment.yaml',
+                            credentialsId: "${GC_KEY}",
+                            verifyDeployments: true
+                        ])
                     }
                 }
             }
         }
     }
 }
-
