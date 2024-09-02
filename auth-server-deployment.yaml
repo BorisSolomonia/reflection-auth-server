@@ -29,6 +29,7 @@ kind: Service
 metadata:
   name: auth-server
 spec:
+  type: LoadBalancer
   ports:
     - port: 8080
       targetPort: 8080
