@@ -7,18 +7,18 @@
 //         PROJECT_ID = 'reflection01-431417'
 //         ARTIFACT_REGISTRY = 'reflection-artifacts'
 //         CLUSTER = 'reflection-cluster-1'
-//         ZONE = 'asia-south1-a'  // Ensure this matches the zone where your cluster is located
-//         REPO_URL = "${env.REGISTRY_URI}/${env.PROJECT_ID}/${env.ARTIFACT_REGISTRY}"
+//         ZONE = 'us-central1'  // Ensure this matches the zone where your cluster is located
+//         REPO_URL = "${REGISTRY_URI}/${PROJECT_ID}/${ARTIFACT_REGISTRY}"
 //     }
 //     stages {
 //         stage('Checkout') {
 //             steps {
-//                 git url: 'https://github.com/BorisSolomonia/reflection-auth-server.git', branch: 'master', credentialsId: "${env.GIT_CREDENTIALS_ID}"
+//                 git url: 'https://github.com/BorisSolomonia/reflection-auth-server.git', branch: 'master', credentialsId: "${GIT_CREDENTIALS_ID}"
 //             }
 //         }
 //         stage('Build and Push Image') {
 //             steps {
-//                 withCredentials([file(credentialsId: "${env.GC_KEY}", variable: 'GC_KEY_FILE')]) {
+//                 withCredentials([file(credentialsId: "${GC_KEY}", variable: 'GC_KEY_FILE')]) {
 //                     script {
 //                         withEnv(["GOOGLE_APPLICATION_CREDENTIALS=${GC_KEY_FILE}"]) {
 //                             sh "gcloud auth activate-service-account --key-file=${GC_KEY_FILE} --verbosity=debug"
@@ -35,14 +35,24 @@
 //             steps {
 //                 script {
 //                     sh "sed -i 's|IMAGE_URL|${REPO_URL}|g' auth-server-deployment.yaml"
-//                     withCredentials([file(credentialsId: "${env.GC_KEY}", variable: 'GC_KEY_FILE')]) {
-//                         step([$class: 'KubernetesEngineBuilder', projectId: env.PROJECT_ID, cluster: env.CLUSTER, location: env.ZONE, manifestPattern: 'auth-server-deployment.yaml', credentialsId: "${env.GC_KEY}", verifyDeployments: true])
+//                     withCredentials([file(credentialsId: "${GC_KEY}", variable: 'GC_KEY_FILE')]) {
+//                         step([
+//                             $class: 'KubernetesEngineBuilder',
+//                             projectId: env.PROJECT_ID,
+//                             cluster: "${env.CLUSTER} (${env.ZONE})", // Ensure this is correct
+//                             location: env.ZONE,
+//                             manifestPattern: 'auth-server-deployment.yaml',
+//                             credentialsId: "${PROJECT_ID}",
+//                             verifyDeployments: true
+//                         ])
 //                     }
 //                 }
 //             }
 //         }
+
 //     }
 // }
+
 
 pipeline {
     agent any
@@ -52,9 +62,9 @@ pipeline {
         REGISTRY_URI = 'asia-south1-docker.pkg.dev'
         PROJECT_ID = 'reflection01-431417'
         ARTIFACT_REGISTRY = 'reflection-artifacts'
+        IMAGE_NAME = 'auth-server'
         CLUSTER = 'reflection-cluster-1'
         ZONE = 'us-central1'  // Ensure this matches the zone where your cluster is located
-        REPO_URL = "${REGISTRY_URI}/${PROJECT_ID}/${ARTIFACT_REGISTRY}"
     }
     stages {
         stage('Checkout') {
@@ -67,34 +77,36 @@ pipeline {
                 withCredentials([file(credentialsId: "${GC_KEY}", variable: 'GC_KEY_FILE')]) {
                     script {
                         withEnv(["GOOGLE_APPLICATION_CREDENTIALS=${GC_KEY_FILE}"]) {
+                            // Authenticate with Google Cloud
                             sh "gcloud auth activate-service-account --key-file=${GC_KEY_FILE} --verbosity=debug"
-                            sh 'gcloud auth configure-docker'
+                            sh "gcloud auth configure-docker ${REGISTRY_URI}"
                         }
                         def mvnHome = tool name: 'maven', type: 'maven'
                         def mvnCMD = "${mvnHome}/bin/mvn"
-                        sh "${mvnCMD} clean install jib:build -DREPO_URL=${REPO_URL} -X"
+                        def imageTag = "v${env.BUILD_NUMBER}"
+                        def imageFullName = "${REGISTRY_URI}/${PROJECT_ID}/${ARTIFACT_REGISTRY}/${IMAGE_NAME}:${imageTag}"
+                        
+                        // Build and push Docker image using Jib
+                        sh "${mvnCMD} clean compile package"
+                        sh "${mvnCMD} com.google.cloud.tools:jib-maven-plugin:3.4.3:build -Dimage=${imageFullName}"
+
+                        // Update deployment manifest with new image
+                        sh "sed -i 's|IMAGE_URL|${imageFullName}|g' auth-server-deployment.yaml"
                     }
                 }
             }
         }
         stage('Deploy') {
             steps {
-                script {
-                    sh "sed -i 's|IMAGE_URL|${REPO_URL}|g' auth-server-deployment.yaml"
-                    withCredentials([file(credentialsId: "${GC_KEY}", variable: 'GC_KEY_FILE')]) {
-                        step([
-                            $class: 'KubernetesEngineBuilder',
-                            projectId: env.PROJECT_ID,
-                            cluster: "${env.CLUSTER} (${env.ZONE})", // Ensure this is correct
-                            location: env.ZONE,
-                            manifestPattern: 'auth-server-deployment.yaml',
-                            credentialsId: "${PROJECT_ID}",
-                            verifyDeployments: true
-                        ])
+                withCredentials([file(credentialsId: "${GC_KEY}", variable: 'GC_KEY_FILE')]) {
+                    script {
+                        // Authenticate and deploy to GKE
+                        sh "gcloud auth activate-service-account --key-file=${GC_KEY_FILE} --verbosity=debug"
+                        sh "gcloud container clusters get-credentials ${CLUSTER} --zone ${ZONE} --project ${PROJECT_ID}"
+                        sh "kubectl apply -f auth-server-deployment.yaml"
                     }
                 }
             }
         }
-
     }
 }

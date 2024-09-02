@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: auth-server
-          image: IMAGE_URL/reflection-auth-server:latest #dockerhub ზე განთავსებული იმიჯია საჭირო
+          # image: IMAGE_URL/reflection-auth-server:latest #dockerhub ზე განთავსებული იმიჯია საჭირო
+          image: IMAGE_URL
           ports:
             - containerPort: 8080
           env:
