@@ -16,6 +16,7 @@ spring:
   security:
     oauth2:
       authorization-server:
+        issuer: http://34.121.119.90:8080
         client:
           api-client:
             registration:
@@ -27,7 +28,7 @@ spring:
                 - client_credentials
             token:
               access-token-time-to-live: 3600s
-        issuer: http://34.121.119.90:8080
+
 
 management:
   endpoints:
