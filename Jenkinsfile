@@ -3,12 +3,12 @@ pipeline {
     environment {
         GIT_CREDENTIALS_ID = 'git'
         GC_KEY = 'gcp'
-        REGISTRY_URI = 'asia-south1-docker.pkg.dev'
-        PROJECT_ID = 'reflection01-431417'
-        ARTIFACT_REGISTRY = 'reflection-artifacts'
+        REGISTRY_URI = 'us-east4-docker.pkg.dev'
+        PROJECT_ID = 'brooks-437520'
+        ARTIFACT_REGISTRY = 'brooks-artifacts'
         IMAGE_NAME = 'auth-server'
-        CLUSTER = 'reflection-cluster-1'
-        ZONE = 'us-central1'  // Ensure this matches the zone where your cluster is located
+        CLUSTER = 'low-cost-cluster'
+        ZONE = 'us-central1-a'  // Ensure this matches the zone where your cluster is located
     }
     stages {
         stage('Checkout') {
