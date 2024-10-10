@@ -148,16 +148,22 @@ pipeline {
                         // Use PowerShell to get a proper WSL-compatible Maven path
                         def mvnHome = tool name: 'maven', type: 'maven'
                         def wslMvnPath = powershell(returnStdout: true, script: """
-                            \$windowsPath = '${mvnHome}'
+                            \$windowsPath = "${mvnHome}"
                             \$wslPath = \$windowsPath -replace '\\\\', '/' -replace 'C:', '/mnt/c'
                             Write-Output \$wslPath
                         """).trim()
+
+                        // Debug Maven path output
+                        echo "Converted Maven Path: ${wslMvnPath}"
 
                         // Ensure that the path to Maven points directly to the executable
                         def mvnCMD = "${wslMvnPath}/bin/mvn"
 
                         def imageTag = "v${env.BUILD_NUMBER}"
                         def imageFullName = "${REGISTRY_URI}/${PROJECT_ID}/${ARTIFACT_REGISTRY}/${IMAGE_NAME}:${imageTag}"
+
+                        // Debug Maven command
+                        echo "Executing Maven Command: ${mvnCMD} clean compile package"
 
                         // Build and push Docker image using Jib
                         bat "wsl -d Ubuntu-22.04 ${mvnCMD} clean compile package"
@@ -186,6 +192,7 @@ pipeline {
         }
         stage('Debug Maven Path') {
             steps {
+                echo "Debugging Maven Path Conversion..."
                 bat "echo Converted Maven Path: ${wslMvnPath}/bin/mvn"
             }
         }
