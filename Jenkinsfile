@@ -103,7 +103,7 @@ pipeline {
                 withCredentials([file(credentialsId: "${GC_KEY}", variable: 'GC_KEY_FILE')]) {
                     script {
                         // Authenticate and deploy to GKE using WSL
-                        bat 'wsl -d Ubuntu-22.04.5 gcloud auth activate-service-account --key-file=%GC_KEY_FILE% --verbosity=debug'
+                        bat 'wsl -d Ubuntu-22.04.5 gcloud auth activate-service-account --key-file=%GC_KEY% --verbosity=debug'
                         //bat "wsl gcloud auth activate-service-account --key-file=${GC_KEY_FILE} --verbosity=debug"
                         bat "wsl gcloud container clusters get-credentials ${CLUSTER} --zone ${ZONE} --project ${PROJECT_ID}"
                         bat "wsl kubectl apply -f auth-server-deployment.yaml"
