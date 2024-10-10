@@ -114,7 +114,6 @@
 //     }
 // }
 
-
 pipeline {
     agent any
     environment {
@@ -147,16 +146,15 @@ pipeline {
                         }
 
                         def mvnHome = tool name: 'maven', type: 'maven'
-                        // Use wslpath to convert the Windows path to a WSL-compatible path
-                        def wslMvnPath = bat(script: "wsl wslpath '${mvnHome}'", returnStdout: true).trim()
+                        // Convert Maven home path to WSL path and include /bin/mvn
+                        def wslMvnPath = bat(script: "wsl wslpath '${mvnHome}'", returnStdout: true).trim() + "/bin/mvn"
 
-                        def mvnCMD = "${wslMvnPath}/bin/mvn"
                         def imageTag = "v${env.BUILD_NUMBER}"
                         def imageFullName = "${REGISTRY_URI}/${PROJECT_ID}/${ARTIFACT_REGISTRY}/${IMAGE_NAME}:${imageTag}"
 
                         // Build and push Docker image using Jib
-                        bat "wsl -d Ubuntu-22.04 ${mvnCMD} clean compile package"
-                        bat "wsl -d Ubuntu-22.04 ${mvnCMD} com.google.cloud.tools:jib-maven-plugin:3.4.3:build -Dimage=${imageFullName}"
+                        bat "wsl -d Ubuntu-22.04 ${wslMvnPath} clean compile package"
+                        bat "wsl -d Ubuntu-22.04 ${wslMvnPath} com.google.cloud.tools:jib-maven-plugin:3.4.3:build -Dimage=${imageFullName}"
 
                         // Update deployment manifest with new image
                         bat "wsl -d Ubuntu-22.04 sed -i 's|IMAGE_URL|${imageFullName}|g' auth-server-deployment.yaml"
