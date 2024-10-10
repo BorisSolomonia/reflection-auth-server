@@ -177,5 +177,10 @@ pipeline {
                 }
             }
         }
+        stage('Debug Maven Path') {
+            steps {
+                bat "wsl wslpath '${mvnHome}'"
+            }
+        }
     }
 }
