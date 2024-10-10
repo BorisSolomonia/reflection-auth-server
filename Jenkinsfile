@@ -124,7 +124,7 @@ pipeline {
         ARTIFACT_REGISTRY = 'brooks-artifacts'
         IMAGE_NAME = 'auth-server'
         CLUSTER = 'low-cost-cluster'
-        ZONE = 'us-central1-a'  // Ensure this matches the zone where your cluster is located
+        ZONE = 'us-central1-a'
     }
     stages {
         stage('Checkout') {
@@ -145,9 +145,13 @@ pipeline {
                             bat "wsl -d Ubuntu-22.04 gcloud auth configure-docker ${REGISTRY_URI}"
                         }
 
-                        // Translate the Maven installation path to a WSL-compatible path using PowerShell
+                        // Use PowerShell to get a proper WSL-compatible Maven path
                         def mvnHome = tool name: 'maven', type: 'maven'
-                        def wslMvnPath = powershell(script: "wsl wslpath '${mvnHome}'", returnStdout: true).trim()
+                        def wslMvnPath = powershell(returnStdout: true, script: """
+                            \$windowsPath = '${mvnHome}'
+                            \$wslPath = \$windowsPath -replace '\\\\', '/' -replace 'C:', '/mnt/c'
+                            Write-Output \$wslPath
+                        """).trim()
 
                         // Ensure that the path to Maven points directly to the executable
                         def mvnCMD = "${wslMvnPath}/bin/mvn"
@@ -178,6 +182,11 @@ pipeline {
                         bat "wsl -d Ubuntu-22.04 kubectl apply -f auth-server-deployment.yaml"
                     }
                 }
+            }
+        }
+        stage('Debug Maven Path') {
+            steps {
+                bat "echo Converted Maven Path: ${wslMvnPath}/bin/mvn"
             }
         }
     }
