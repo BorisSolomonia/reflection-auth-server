@@ -125,6 +125,7 @@ pipeline {
         IMAGE_NAME = 'auth-server'
         CLUSTER = 'low-cost-cluster'
         ZONE = 'us-central1-a'
+        MVN_PATH = '/home/<username>/maven/bin/mvn'
     }
     stages {
         stage('Checkout') {
@@ -145,29 +146,12 @@ pipeline {
                             bat "wsl -d Ubuntu-22.04 gcloud auth configure-docker ${REGISTRY_URI}"
                         }
 
-                        // Use PowerShell to get a proper WSL-compatible Maven path
-                        def mvnHome = tool name: 'maven', type: 'maven'
-                        def wslMvnPath = powershell(returnStdout: true, script: """
-                            \$windowsPath = "${mvnHome}"
-                            \$wslPath = \$windowsPath -replace '\\\\', '/' -replace 'C:', '/mnt/c'
-                            Write-Output \$wslPath
-                        """).trim()
-
-                        // Debug Maven path output
-                        echo "Converted Maven Path: ${wslMvnPath}"
-
-                        // Ensure that the path to Maven points directly to the executable
-                        def mvnCMD = "${wslMvnPath}/bin/mvn"
-
                         def imageTag = "v${env.BUILD_NUMBER}"
                         def imageFullName = "${REGISTRY_URI}/${PROJECT_ID}/${ARTIFACT_REGISTRY}/${IMAGE_NAME}:${imageTag}"
 
-                        // Debug Maven command
-                        echo "Executing Maven Command: ${mvnCMD} clean compile package"
-
                         // Build and push Docker image using Jib
-                        bat "wsl -d Ubuntu-22.04 ${mvnCMD} clean compile package"
-                        bat "wsl -d Ubuntu-22.04 ${mvnCMD} com.google.cloud.tools:jib-maven-plugin:3.4.3:build -Dimage=${imageFullName}"
+                        bat "wsl -d Ubuntu-22.04 ${env.MVN_PATH} clean compile package"
+                        bat "wsl -d Ubuntu-22.04 ${env.MVN_PATH} com.google.cloud.tools:jib-maven-plugin:3.4.3:build -Dimage=${imageFullName}"
 
                         // Update deployment manifest with new image
                         bat "wsl -d Ubuntu-22.04 sed -i 's|IMAGE_URL|${imageFullName}|g' auth-server-deployment.yaml"
@@ -193,7 +177,7 @@ pipeline {
         stage('Debug Maven Path') {
             steps {
                 echo "Debugging Maven Path Conversion..."
-                bat "echo Converted Maven Path: ${wslMvnPath}/bin/mvn"
+                bat "echo Converted Maven Path: ${env.MVN_PATH}"
             }
         }
     }
