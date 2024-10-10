@@ -147,7 +147,10 @@ pipeline {
                         }
 
                         def mvnHome = tool name: 'maven', type: 'maven'
-                        def mvnCMD = "${mvnHome}/bin/mvn"
+                        // Use wslpath to convert the Windows path to a WSL-compatible path
+                        def wslMvnPath = bat(script: "wsl wslpath '${mvnHome}'", returnStdout: true).trim()
+
+                        def mvnCMD = "${wslMvnPath}/bin/mvn"
                         def imageTag = "v${env.BUILD_NUMBER}"
                         def imageFullName = "${REGISTRY_URI}/${PROJECT_ID}/${ARTIFACT_REGISTRY}/${IMAGE_NAME}:${imageTag}"
 
