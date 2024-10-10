@@ -145,9 +145,9 @@ pipeline {
                             bat "wsl -d Ubuntu-22.04 gcloud auth configure-docker ${REGISTRY_URI}"
                         }
 
-                        // Translate the Maven installation path to a WSL-compatible path
+                        // Translate the Maven installation path to a WSL-compatible path using PowerShell
                         def mvnHome = tool name: 'maven', type: 'maven'
-                        def wslMvnPath = bat(script: "wsl wslpath '${mvnHome}'", returnStdout: true).trim()
+                        def wslMvnPath = powershell(script: "wsl wslpath '${mvnHome}'", returnStdout: true).trim()
 
                         // Ensure that the path to Maven points directly to the executable
                         def mvnCMD = "${wslMvnPath}/bin/mvn"
