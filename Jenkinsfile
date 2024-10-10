@@ -125,7 +125,7 @@ pipeline {
         IMAGE_NAME = 'auth-server'
         CLUSTER = 'low-cost-cluster'
         ZONE = 'us-central1-a'
-        MVN_PATH = '/home/<username>/maven/bin/mvn'
+        MVN_PATH = '/home/borissolomonia/maven/bin/mvn' // Updated with the correct path to Maven
     }
     stages {
         stage('Checkout') {
