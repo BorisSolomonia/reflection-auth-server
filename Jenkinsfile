@@ -145,16 +145,19 @@ pipeline {
                             bat "wsl -d Ubuntu-22.04 gcloud auth configure-docker ${REGISTRY_URI}"
                         }
 
+                        // Translate the Maven installation path to a WSL-compatible path
                         def mvnHome = tool name: 'maven', type: 'maven'
-                        // Convert Maven home path to WSL path and include /bin/mvn
-                        def wslMvnPath = bat(script: "wsl wslpath '${mvnHome}'", returnStdout: true).trim() + "/bin/mvn"
+                        def wslMvnPath = bat(script: "wsl wslpath '${mvnHome}'", returnStdout: true).trim()
+
+                        // Ensure that the path to Maven points directly to the executable
+                        def mvnCMD = "${wslMvnPath}/bin/mvn"
 
                         def imageTag = "v${env.BUILD_NUMBER}"
                         def imageFullName = "${REGISTRY_URI}/${PROJECT_ID}/${ARTIFACT_REGISTRY}/${IMAGE_NAME}:${imageTag}"
 
                         // Build and push Docker image using Jib
-                        bat "wsl -d Ubuntu-22.04 ${wslMvnPath} clean compile package"
-                        bat "wsl -d Ubuntu-22.04 ${wslMvnPath} com.google.cloud.tools:jib-maven-plugin:3.4.3:build -Dimage=${imageFullName}"
+                        bat "wsl -d Ubuntu-22.04 ${mvnCMD} clean compile package"
+                        bat "wsl -d Ubuntu-22.04 ${mvnCMD} com.google.cloud.tools:jib-maven-plugin:3.4.3:build -Dimage=${imageFullName}"
 
                         // Update deployment manifest with new image
                         bat "wsl -d Ubuntu-22.04 sed -i 's|IMAGE_URL|${imageFullName}|g' auth-server-deployment.yaml"
@@ -175,11 +178,6 @@ pipeline {
                         bat "wsl -d Ubuntu-22.04 kubectl apply -f auth-server-deployment.yaml"
                     }
                 }
-            }
-        }
-        stage('Debug Maven Path') {
-            steps {
-                bat "wsl wslpath '${mvnHome}'"
             }
         }
     }
