@@ -168,7 +168,7 @@ pipeline {
                         bat "wsl -d Ubuntu-22.04 ${mvnCMD} com.google.cloud.tools:jib-maven-plugin:3.4.3:build -Dimage=${imageFullName}"
 
                         // Update deployment manifest with new image
-                        bat "wsl -d Ubuntu-22.04 sed -i 's|IMAGE_URL|${imageFullName}|g' auth-server-deployment.yaml"
+                        bat "wsl -d Ubuntu-22.04 sed -i \"s|IMAGE_URL|${imageFullName}|g\" auth-server-deployment.yaml"
                     }
                 }
             }
