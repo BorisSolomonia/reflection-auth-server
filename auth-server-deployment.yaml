@@ -12,18 +12,26 @@ spec:
       labels:
         app: auth-server
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - gke-low-cost-cluster-default-pool-04626fef-h9xn
       containers:
         - name: auth-server
-          # image: IMAGE_URL/reflection-auth-server:latest #dockerhub ზე განთავსებული იმიჯია საჭირო
           image: IMAGE_URL
           ports:
             - containerPort: 8080
           resources:
             requests:
-              cpu: "100m"          # Reduced CPU request
-              memory: "128Mi"      # Reduced Memory request
+              cpu: "100m"
+              memory: "128Mi"
             limits:
-              cpu: "100m"          # Adjusted CPU limit
+              cpu: "100m"
               memory: "128Mi"
           env:
             - name: EUREKA_SERVER_ADDRESS
