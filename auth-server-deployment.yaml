@@ -20,7 +20,7 @@ spec:
               - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - gke-low-cost-cluster-default-pool-04626fef-h9xn
+                - gke-low-cost-cluster-default-pool-04626fef-gvbc
       containers:
         - name: auth-server
           image: IMAGE_URL
@@ -41,7 +41,7 @@ spec:
             - name: AUTH_SERVER
               value: http://34.121.119.90:8080
 
-              
+
 ---
 apiVersion: v1
 kind: Service
