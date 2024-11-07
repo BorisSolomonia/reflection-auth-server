@@ -4,6 +4,7 @@ pipeline {
         GIT_CREDENTIALS_ID = 'git'
         GC_KEY = 'gcp'
         REGISTRY_URI = 'us-central1-docker.pkg.dev'
+        REPO_URL='us-central1-docker.pkg.dev/hidden-mind-441018-h1/brooks'
         PROJECT_ID = 'hidden-mind-441018-h1'
         ARTIFACT_REGISTRY = 'brooks'
         IMAGE_NAME = 'auth-server'
