@@ -3,12 +3,12 @@ pipeline {
     environment {
         GIT_CREDENTIALS_ID = 'git'
         GC_KEY = 'gcp'
-        REGISTRY_URI = 'us-east4-docker.pkg.dev'
-        PROJECT_ID = 'brooks-437520'
-        ARTIFACT_REGISTRY = 'brooks-artifacts'
+        REGISTRY_URI = 'us-central1-docker.pkg.dev'
+        PROJECT_ID = 'hidden-mind-441018-h1'
+        ARTIFACT_REGISTRY = 'brooks'
         IMAGE_NAME = 'auth-server'
         CLUSTER = 'low-cost-cluster'
-        ZONE = 'us-central1-a'
+        ZONE = 'us-central1'
         JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64' // Set JAVA_HOME for WSL
         PATH = "${JAVA_HOME}/bin:${env.PATH}" // Add JAVA_HOME to the PATH for WSL
     }
