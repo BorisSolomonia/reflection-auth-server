@@ -16,7 +16,7 @@ spring:
   security:
     oauth2:
       authorization-server:
-        issuer: http://34.121.119.90:8080
+        issuer: http://34.67.92.189:8080
         client:
           api-client:
             registration:
