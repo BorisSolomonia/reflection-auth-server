@@ -24,7 +24,7 @@ spec:
       
       containers:
         - name: auth-server
-          image: auth-server
+          image: us-central1-docker.pkg.dev/hidden-mind-441018-h1/brooks/auth-server
           ports:
             - containerPort: 8080
           resources:
