@@ -24,7 +24,7 @@ spec:
       
       containers:
         - name: auth-server
-          image: IMAGE_URL
+          image: auth-server
           ports:
             - containerPort: 8080
           resources:
