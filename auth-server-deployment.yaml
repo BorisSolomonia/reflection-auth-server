@@ -29,10 +29,10 @@ spec:
             - containerPort: 8080
           resources:
             requests:
-              cpu: "50m"
+              cpu: "40m"
               memory: "256Mi"
             limits:
-              cpu: "50m"
+              cpu: "40m"
               memory: "256Mi"
           env:
             - name: EUREKA_SERVER_ADDRESS
