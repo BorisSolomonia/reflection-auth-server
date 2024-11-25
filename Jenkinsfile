@@ -16,7 +16,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/BorisSolomonia/reflection-auth-server.git', branch: 'master', credentialsId: "${GIT_CREDENTIALS_ID}"
+                git url: 'https://github.com/BorisSolomonia/reflection-auth-server.git', branch: 'alter_4', credentialsId: "${GIT_CREDENTIALS_ID}"
             }
         }
         stage('Build and Push Image') {
