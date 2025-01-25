@@ -35,8 +35,8 @@ spec:
               cpu: "150m"
               memory: "512Mi"
           env:
-            - name: EUREKA_SERVER_ADDRESS
-              value: "http://reflect-service-registry:8761/eureka"
+            # - name: EUREKA_SERVER_ADDRESS
+            #   value: "http://reflect-service-registry:8761/eureka"
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
             - name: AUTH_SERVER
